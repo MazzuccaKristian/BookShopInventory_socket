@@ -6,6 +6,9 @@ int main(int argc, char const *argv[]){
     struct sockaddr_in socketAddress;
     int addressLength = sizeof(socketAddress);
 
+    int received;
+    char buffer[1024];
+
     // Socket creation: IPv4, UDP and IP protocol.
     if((serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0){
         perror("Socket creation");
@@ -38,5 +41,36 @@ int main(int argc, char const *argv[]){
         exit(EXIT_FAILURE);
     }
 
+    Setup();
+
+    received = read(newSocket, buffer, 1024);
+    if(received < 0){
+        perror("Read");
+    }
+    int convertedBuffer = std::stoi(buffer);
+    switch(convertedBuffer){
+        case 1:
+            // ShowArchive();
+            break;
+    }
+
     return 0;
+}
+
+/**
+ * @brief Setup file (archive).
+ * 
+ */
+void Setup(){
+    ifstream books;
+    books.open(BOOKS);
+    if(!books.is_open()){
+        // Here if the file does NOT exist
+        ofstream newFile;
+        newFile.open(BOOKS);
+        if(newFile.is_open()){
+            newFile.close();
+        }
+    }
+    books.close();
 }
