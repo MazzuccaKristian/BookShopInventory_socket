@@ -1,12 +1,13 @@
 #include "server.h"
 
 int main(int argc, char const *argv[]){
-    int serverSocket;
+    int serverSocket, newSocket;
     int socketOption = 1;
     struct sockaddr_in socketAddress;
+    int addressLength = sizeof(socketAddress);
 
     // Socket creation: IPv4, UDP and IP protocol.
-    if(serverSocket = socket(AF_INET, SOCK_STREAM, 0) < 0){
+    if((serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0){
         perror("Socket creation");
         exit(EXIT_FAILURE);
     }
@@ -26,9 +27,14 @@ int main(int argc, char const *argv[]){
         exit(EXIT_FAILURE);
     }
 
-    // Accept 1 connection. PROTOTYPE.
+    // Server listening 1 connection.
     if(listen(serverSocket, CONNECTIONS) < 0){
         perror("Listen");
+        exit(EXIT_FAILURE);
+    }
+
+    if((newSocket = accept(serverSocket, (struct sockaddr *)&socketAddress, (socklen_t *)&addressLength)) < 0){
+        perror("Accept");
         exit(EXIT_FAILURE);
     }
 
