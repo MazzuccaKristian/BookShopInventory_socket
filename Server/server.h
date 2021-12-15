@@ -11,6 +11,7 @@ using std::cout;
 using std::endl;
 using std::ofstream;
 using std::ifstream;
+using std::string;
 
 #define PORT 8080
 #define CONNECTIONS 1
@@ -18,3 +19,4 @@ using std::ifstream;
 
 void Setup();
 
+void ShowArchive(string* archive);

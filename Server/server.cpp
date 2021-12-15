@@ -43,14 +43,19 @@ int main(int argc, char const *argv[]){
 
     Setup();
 
-    received = read(newSocket, buffer, 1024);
+    // Receive option value from client.
+    received = recv(newSocket, buffer, sizeof(buffer), 0);
     if(received < 0){
         perror("Read");
     }
-    int convertedBuffer = std::stoi(buffer);
-    switch(convertedBuffer){
+    int option = std::stoi(buffer);
+    switch(option){
         case 1:
-            // ShowArchive();
+            // PROTOTYPE: get first record from archive, then send it to client.
+            string archive;
+            ShowArchive(&archive);
+            const char* formattedArchive = archive.c_str();
+            send(newSocket, formattedArchive, sizeof(formattedArchive), 0);
             break;
     }
 
@@ -71,6 +76,23 @@ void Setup(){
         if(newFile.is_open()){
             newFile.close();
         }
+    }
+    books.close();
+}
+
+/**
+ * @brief Read single record from archive.
+ *        PROTOTYPE.
+ * 
+ * @param archive string pointer
+ */
+void ShowArchive(string* archive){
+    ifstream books (BOOKS);
+    if(books.is_open()){
+        archive -> clear();
+        string readed;
+        books >> readed;
+        archive -> insert(0, readed);
     }
     books.close();
 }
