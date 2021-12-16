@@ -8,7 +8,9 @@ int main(int argc, char const *argv[]){
     // Application params
         bool isStillWorking = true;
         int choice;
-        char* data;
+        char buffer[2048] = {0};
+        int dataFromServer;
+        string clientOption;
     //
 
     // Connection
@@ -41,15 +43,24 @@ int main(int argc, char const *argv[]){
             choice = GetUserChoice();
             switch(choice){
                 case 0:
+                    // Quit program.
                     cout << "Program ended. Please, wait..." << endl;
                     isStillWorking = false;
                     break;
 
                 case 1:
-                    data = "1";
-                    send(server, data, strlen(data), 0);
-                    cout << "DATA SENT" << endl;
-                    break;
+                    // Retrieve data from client
+                    string username, password, user;
+                    clientOption = "1";
+                    cin.ignore();
+                    cout << "Enter your username: ";
+                    getline(cin, username);
+                    cout << "Enter your password: ";
+                    getline(cin, password);
+                    user = clientOption + "|" + username + "|" + password;
+                    const char* formattedUser = user.c_str();
+                    // Send data to Server.
+                    send(server, formattedUser, strlen(formattedUser), 0);
             }
         }while(isStillWorking);
     //
@@ -62,7 +73,11 @@ int main(int argc, char const *argv[]){
  */
 void ShowMainMenu(){
     cout << "MAIN MENU" << endl;
-    cout << "1. Show archive;" << endl;
+    cout << "1. Create new account;" << endl;
+    cout << "2. Login;" << endl;
+    cout << "3. Search book;" << endl;
+    cout << "4. Rent book;" << endl;
+    cout << "5. Return book;" << endl;
     cout << "0. Exit." << endl;
 }
 
