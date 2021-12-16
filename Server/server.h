@@ -16,7 +16,9 @@ using std::string;
 #define PORT 8080
 #define CONNECTIONS 1
 #define BOOKS "books.txt"
+#define USERS "users.txt"
+#define BUFFER_SIZE 16
 
 void Setup();
 
-void ShowArchive(string* archive);
+void RecordNewUser(string name, string ppww);
