@@ -7,7 +7,7 @@ int main(int argc, char const *argv[]){
     int addressLength = sizeof(socketAddress);
 
     int received;
-    char buffer[1024];
+    char buffer[2048] = {0};
 
     // Socket creation: IPv4, UDP and IP protocol.
     if((serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0){
@@ -43,31 +43,34 @@ int main(int argc, char const *argv[]){
 
     Setup();
 
-    // Receive option value from client.
-    received = recv(newSocket, buffer, sizeof(buffer), 0);
-    if(received < 0){
-        perror("Read");
-    }
-    int option = std::stoi(buffer);
-    switch(option){
-        case 1:
-            // PROTOTYPE: get first record from archive, then send it to client.
-            string archive;
-            ShowArchive(&archive);
-            const char* formattedArchive = archive.c_str();
-            send(newSocket, formattedArchive, sizeof(formattedArchive), 0);
-            break;
+    // Receive option value and data (if needed) from client.
+    received = recv(newSocket, buffer, BUFFER_SIZE, 0);
+    if(received <= 0){
+        perror("RECV");
+    }else{
+        string dataFromClient = buffer;
+        int option = std::stoi(dataFromClient.substr(0, 2));
+        switch(option){
+            case 1:
+                string userData = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
+                string username, password;
+                username = userData.substr(0, userData.find_first_of("|"));
+                password = userData.substr(userData.find_first_of("|") + 1);
+                RecordNewUser(username, password);
+                break;
+        }
     }
 
     return 0;
 }
 
 /**
- * @brief Setup file (archive).
+ * @brief Setup file (archive and users).
  * 
  */
 void Setup(){
     ifstream books;
+    ifstream users;
     books.open(BOOKS);
     if(!books.is_open()){
         // Here if the file does NOT exist
@@ -77,22 +80,24 @@ void Setup(){
             newFile.close();
         }
     }
-    books.close();
-}
-
-/**
- * @brief Read single record from archive.
- *        PROTOTYPE.
- * 
- * @param archive string pointer
- */
-void ShowArchive(string* archive){
-    ifstream books (BOOKS);
-    if(books.is_open()){
-        archive -> clear();
-        string readed;
-        books >> readed;
-        archive -> insert(0, readed);
+    users.open(USERS);
+    if(!users.is_open()){
+        ofstream usersTemp;
+        usersTemp.open(USERS);
+        if(usersTemp.is_open()){
+            usersTemp.close();
+        }
     }
     books.close();
+    users.close();
+}
+
+void RecordNewUser(string name, string ppww){
+    ofstream users;
+    users.open(USERS, ofstream::app);
+    if(users.is_open()){
+        string user = "User: " + name + " " + "Password: " + ppww;
+        users << user << endl;
+    }
+    users.close();
 }
