@@ -81,14 +81,19 @@ int main(int argc, char const *argv[]){
                         cout << "Can't rent book." << endl;
                     }
                     break;
-                
-                // case 3:
-                //     clientOption = "3";
-                //     cout << "Enter title: ";
-                //     cin.ignore();
-                //     getline(cin, title);
-                //     query = clientOption + "|" + title;
-                //     const char* searchQuery = query.c_str();
+
+                case 3:
+                    clientOption = "3";
+                    cout << "Enter title: ";
+                    data1 = GetData(true);
+                    query = clientOption + "|" + data1;
+                    send(server, query.c_str(), sizeof(query), 0);
+                    recv(server, buffer, sizeof(query), 0);
+                    if(buffer[0] == '1'){
+                        cout << "Book returned." << endl;
+                    }else{
+                        cout << "Book not returned." << endl;
+                    }
             }
         }while(isStillWorking);
     //
