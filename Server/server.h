@@ -25,3 +25,5 @@ void inline Setup();
 bool SearchBook(string title);
 
 bool RentBook(string title);
+
+bool UpdateBooks(string title);
