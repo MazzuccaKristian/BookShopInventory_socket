@@ -17,8 +17,11 @@ using std::string;
 #define CONNECTIONS 1
 #define BOOKS "books.txt"
 #define USERS "users.txt"
+#define TEMP "temp.txt"
 #define BUFFER_SIZE 32
 
 void inline Setup();
 
 bool SearchBook(string title);
+
+bool RentBook(string title);
