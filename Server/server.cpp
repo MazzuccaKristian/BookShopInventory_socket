@@ -83,10 +83,16 @@ int main(int argc, char const *argv[]){
                     queryForClient = "0";
                 }
                 send(newSocket, queryForClient.c_str(), sizeof(queryForClient), 0);
-                // userData = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
-                // username = userData.substr(0, userData.find_first_of("|"));
-                // password = userData.substr(userData.find_first_of("|") + 1);
-                // // bool isLogged = UserLogin(username, password);
+                break;
+
+            case 3:
+                searchedTitle = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
+                if(UpdateBooks(searchedTitle)){
+                    queryForClient = "1";
+                }else{
+                    queryForClient = "0";
+                }
+                send(newSocket, queryForClient.c_str(), sizeof(queryForClient), 0);
                 break;
         }
     }
@@ -179,4 +185,47 @@ bool RentBook(string title){
     remove(BOOKS);
     rename(TEMP, BOOKS);
     return rented;
+}
+
+/**
+ * @brief Update (increment) number of copies of a book.
+ * 
+ * @param title title of the book that must be updated in archive.
+ * @return true if the book has been updated correctly.
+ * @return false 
+ */
+bool UpdateBooks(string title){
+    bool updated = false;
+    bool added = false;
+    ifstream books;
+    ofstream tempFile;
+    int copies;
+    string record;
+    books.open(BOOKS);
+    tempFile.open(TEMP);
+    if(books.is_open() && tempFile.is_open()){
+        string titleKey, titleValue, copyKey, copyValue;
+        while(books >> titleKey >> titleValue >> copyKey >> copyValue){
+            if((titleKey.compare("Title:") == 0) && (titleValue.compare(title) == 0)){
+                copies = std::stoi(copyValue);
+                copies++;
+                updated = true;
+                added = true;
+                record = titleKey + " " + titleValue + " " + copyKey + " " + std::to_string(copies);
+            }else{
+                record = titleKey + " " + titleValue + " " + copyKey + " " + copyValue;
+            }
+            tempFile << record << endl;
+        }
+        if(!added){
+            record = titleKey + " " + title + " " + copyKey + " 1";
+            tempFile << record << endl;
+            added = true;
+        }
+    }
+    books.close();
+    tempFile.close();
+    remove(BOOKS);
+    rename(TEMP, BOOKS);
+    return added;
 }
