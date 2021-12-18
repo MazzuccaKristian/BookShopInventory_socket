@@ -8,6 +8,7 @@
 
 #define PORT 8080
 #define SERVER_IP "127.0.0.1"
+#define QUERY_SIZE 32
 
 using std::perror;
 using std::cout;
@@ -18,3 +19,5 @@ using std::string;
 void ShowMainMenu();
 
 int GetUserChoice();
+
+string inline GetData(bool dumpFlag);
