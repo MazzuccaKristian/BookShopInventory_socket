@@ -6,11 +6,17 @@ int main(int argc, char const *argv[]){
         struct sockaddr_in serverAddress;
     //
     // Application params
+        string data1, data2;
+        string query;
+        int queryResult;
+
         bool isStillWorking = true;
         int choice;
         char buffer[2048] = {0};
         int dataFromServer;
         string clientOption;
+        string username, password, user;
+        string title;
     //
 
     // Connection
@@ -49,18 +55,37 @@ int main(int argc, char const *argv[]){
                     break;
 
                 case 1:
-                    // Retrieve data from client
-                    string username, password, user;
                     clientOption = "1";
-                    cin.ignore();
+                    cout << "Enter title: ";
+                    data1 = GetData(true);
+                    query = clientOption + "|" + data1;
+                    send(server, query.c_str(), QUERY_SIZE, 0);
+                    recv(server, buffer, QUERY_SIZE, 0);
+                    if(buffer[0] == '1'){
+                        cout << "This book is available." << endl;
+                    }else{
+                        cout << "This book isn't available." << endl;
+                    }
+                    break;
+
+                case 2:
+                    // Login (for user)
+                    clientOption = "2";
                     cout << "Enter your username: ";
-                    getline(cin, username);
+                    data1 = GetData(true);
                     cout << "Enter your password: ";
-                    getline(cin, password);
-                    user = clientOption + "|" + username + "|" + password;
-                    const char* formattedUser = user.c_str();
-                    // Send data to Server.
-                    send(server, formattedUser, strlen(formattedUser), 0);
+                    data2 = GetData(false);
+                    query = clientOption + "|" + data1 + "|" + data2;
+                    send(server, query.c_str(), QUERY_SIZE, 0);
+                    break;
+                
+                // case 3:
+                //     clientOption = "3";
+                //     cout << "Enter title: ";
+                //     cin.ignore();
+                //     getline(cin, title);
+                //     query = clientOption + "|" + title;
+                //     const char* searchQuery = query.c_str();
             }
         }while(isStillWorking);
     //
@@ -73,11 +98,9 @@ int main(int argc, char const *argv[]){
  */
 void ShowMainMenu(){
     cout << "MAIN MENU" << endl;
-    cout << "1. Create new account;" << endl;
-    cout << "2. Login;" << endl;
-    cout << "3. Search book;" << endl;
-    cout << "4. Rent book;" << endl;
-    cout << "5. Return book;" << endl;
+    cout << "1. Search book;" << endl;
+    cout << "2. Rent a book;" << endl;
+    cout << "3. Return a book;" << endl;
     cout << "0. Exit." << endl;
 }
 
@@ -92,11 +115,27 @@ int GetUserChoice(){
     do{
         cout << "Enter your choice: ";
         cin >> input;
-        if(input >= 0 && input <= 1){
+        if(input >= 0 && input <= 5){
             isValid = true;
         }else{
             cout << "Try again...." << endl;
         }
     }while(!isValid);
     return input;
+}
+
+/**
+ * @brief Get the Data object
+ * 
+ * @param dumpFlag TRUE if the buffer must be dumped.
+ * @return string - Final string.
+ */
+string GetData(bool dumpFlag){
+    string dump;
+    string data;
+    if(dumpFlag){
+        getline(cin, dump);
+    }
+    getline(cin, data);
+    return data;
 }
