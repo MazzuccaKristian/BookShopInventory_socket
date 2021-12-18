@@ -59,24 +59,27 @@ int main(int argc, char const *argv[]){
                     cout << "Enter title: ";
                     data1 = GetData(true);
                     query = clientOption + "|" + data1;
-                    send(server, query.c_str(), QUERY_SIZE, 0);
-                    recv(server, buffer, QUERY_SIZE, 0);
+                    send(server, query.c_str(), sizeof(query), 0);
+                    recv(server, buffer, sizeof(query), 0);
                     if(buffer[0] == '1'){
-                        cout << "This book is available." << endl;
+                        cout << "This book is in archive." << endl;
                     }else{
-                        cout << "This book isn't available." << endl;
+                        cout << "This book isn't in archive." << endl;
                     }
                     break;
 
                 case 2:
-                    // Login (for user)
                     clientOption = "2";
-                    cout << "Enter your username: ";
+                    cout << "Enter title: ";
                     data1 = GetData(true);
-                    cout << "Enter your password: ";
-                    data2 = GetData(false);
-                    query = clientOption + "|" + data1 + "|" + data2;
-                    send(server, query.c_str(), QUERY_SIZE, 0);
+                    query = clientOption + "|" + data1;
+                    send(server, query.c_str(), sizeof(query), 0);
+                    recv(server, buffer, sizeof(query), 0);
+                    if(buffer[0] == '1'){
+                        cout << "Book rented." << endl;
+                    }else{
+                        cout << "Can't rent book." << endl;
+                    }
                     break;
                 
                 // case 3:
