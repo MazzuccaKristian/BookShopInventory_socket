@@ -71,10 +71,22 @@ int main(int argc, char const *argv[]){
                 break;
 
             case 2:
-                userData = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
-                username = userData.substr(0, userData.find_first_of("|"));
-                password = userData.substr(userData.find_first_of("|") + 1);
-                // bool isLogged = UserLogin(username, password);
+                searchedTitle = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
+                isTitleFound = SearchBook(searchedTitle);
+                if(isTitleFound){
+                    if(RentBook(searchedTitle)){
+                        queryForClient = "1";
+                    }else{
+                        queryForClient = "0";
+                    }
+                }else{
+                    queryForClient = "0";
+                }
+                send(newSocket, queryForClient.c_str(), sizeof(queryForClient), 0);
+                // userData = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
+                // username = userData.substr(0, userData.find_first_of("|"));
+                // password = userData.substr(userData.find_first_of("|") + 1);
+                // // bool isLogged = UserLogin(username, password);
                 break;
         }
     }
@@ -111,7 +123,7 @@ void Setup(){
 }
 
 /**
- * @brief Search if a book is present in archive and if there's at least one copy.
+ * @brief Search if a book is present in archive.
  * 
  * @param title Searched title
  * @return true if the book is available
@@ -125,13 +137,46 @@ bool SearchBook(string title){
         string titleKey, titleValue, copyKey, copyValue;
         while(books >> titleKey >> titleValue >> copyKey >> copyValue){
             if((titleKey.compare("Title:") == 0) && (titleValue.compare(title) == 0)){
-                int copies = std::stoi(copyValue);
-                if(copies > 0){
-                    found = true;
-                }
+                found = true;
             }
         }
     }
     books.close();
     return found;
+}
+
+/**
+ * @brief Search a book in archive and decrement the number of copies available.
+ * 
+ * @param title Searched title
+ * @return true if the book is in archive with at least one copy.
+ * @return false 
+ */
+bool RentBook(string title){
+    bool rented = false;
+    int copies;
+    ofstream tempFile;
+    ifstream books;
+    books.open(BOOKS);
+    tempFile.open(TEMP);
+    if(books.is_open() && tempFile.is_open()){
+        string titleKey, titleValue, copyKey, copyValue;
+        while(books >> titleKey >> titleValue >> copyKey >> copyValue){
+            if((titleKey.compare("Title:") == 0) && (titleValue.compare(title) == 0)){
+                // Here if the book is in archive.
+                copies = std::stoi(copyValue);
+                if(copies > 0){
+                    copies--;
+                    rented = true;
+                }
+            }
+            string record = titleKey + " " + titleValue + " " + copyKey + " " + std::to_string(copies);
+            tempFile << record << endl;
+        }
+    }
+    tempFile.close();
+    books.close();
+    remove(BOOKS);
+    rename(TEMP, BOOKS);
+    return rented;
 }
