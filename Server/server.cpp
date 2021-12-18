@@ -9,6 +9,14 @@ int main(int argc, char const *argv[]){
     int received;
     char buffer[2048] = {0};
 
+    string searchedTitle;
+    string queryForClient;
+
+    bool isTitleFound;
+
+    string userData;
+    string username, password;
+
     // Socket creation: IPv4, UDP and IP protocol.
     if((serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0){
         perror("Socket creation");
@@ -45,18 +53,28 @@ int main(int argc, char const *argv[]){
 
     // Receive option value and data (if needed) from client.
     received = recv(newSocket, buffer, BUFFER_SIZE, 0);
-    if(received <= 0){
+    if(received < 0){
         perror("RECV");
     }else{
         string dataFromClient = buffer;
         int option = std::stoi(dataFromClient.substr(0, 2));
         switch(option){
             case 1:
-                string userData = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
-                string username, password;
+                searchedTitle = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
+                isTitleFound = SearchBook(searchedTitle);
+                if(isTitleFound){
+                    queryForClient = "1";
+                }else{
+                    queryForClient = "0";
+                }
+                send(newSocket, queryForClient.c_str(), sizeof(queryForClient), 0);
+                break;
+
+            case 2:
+                userData = dataFromClient.substr(dataFromClient.find_first_of("|") + 1);
                 username = userData.substr(0, userData.find_first_of("|"));
                 password = userData.substr(userData.find_first_of("|") + 1);
-                RecordNewUser(username, password);
+                // bool isLogged = UserLogin(username, password);
                 break;
         }
     }
@@ -92,12 +110,28 @@ void Setup(){
     users.close();
 }
 
-void RecordNewUser(string name, string ppww){
-    ofstream users;
-    users.open(USERS, ofstream::app);
-    if(users.is_open()){
-        string user = "User: " + name + " " + "Password: " + ppww;
-        users << user << endl;
+/**
+ * @brief Search if a book is present in archive and if there's at least one copy.
+ * 
+ * @param title Searched title
+ * @return true if the book is available
+ * @return false if the book isn't available
+ */
+bool SearchBook(string title){
+    ifstream books;
+    bool found = false;
+    books.open(BOOKS);
+    if(books.is_open()){
+        string titleKey, titleValue, copyKey, copyValue;
+        while(books >> titleKey >> titleValue >> copyKey >> copyValue){
+            if((titleKey.compare("Title:") == 0) && (titleValue.compare(title) == 0)){
+                int copies = std::stoi(copyValue);
+                if(copies > 0){
+                    found = true;
+                }
+            }
+        }
     }
-    users.close();
+    books.close();
+    return found;
 }
