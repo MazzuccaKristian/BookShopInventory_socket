@@ -4,28 +4,19 @@ int main(int argc, char const *argv[])
 {
     /* Parameters for connection */
     int socket;
+    string query; // filled by client-side application
 
-    int serverSocket;
-
-    // Connection params
-    // struct sockaddr_in serverAddress;
-    //
-    // Application params
-    string data1, data2;
-    string query;
-    int queryResult;
-
+    /* Parameters for client application */
     bool isStillWorking = true;
     int choice;
-    char buffer[2048] = {0};
-    int dataFromServer;
     string clientOption;
-    string username, password, user;
-    string title;
-    //
+    string data;
+    char buffer[BUFFER_SIZE] = {0}; // filled by server-side application
+
 
     do
     {
+        // Establish connection with server.
         socket = ServerConnection();
         if(socket < 0){
             perror("Socket ERROR");
@@ -45,8 +36,8 @@ int main(int argc, char const *argv[])
         case 1:
             clientOption = "1";
             cout << "Enter title: ";
-            data1 = GetData(true);
-            query = clientOption + "|" + data1;
+            data = GetData(true);
+            query = clientOption + "|" + data;
             send(socket, query.c_str(), sizeof(query), 0);
             recv(socket, buffer, sizeof(query), 0);
             if (buffer[0] == '1')
@@ -62,8 +53,8 @@ int main(int argc, char const *argv[])
         case 2:
             clientOption = "2";
             cout << "Enter title: ";
-            data1 = GetData(true);
-            query = clientOption + "|" + data1;
+            data = GetData(true);
+            query = clientOption + "|" + data;
             send(socket, query.c_str(), sizeof(query), 0);
             recv(socket, buffer, sizeof(query), 0);
             if (buffer[0] == '1')
@@ -79,8 +70,8 @@ int main(int argc, char const *argv[])
         case 3:
             clientOption = "3";
             cout << "Enter title: ";
-            data1 = GetData(true);
-            query = clientOption + "|" + data1;
+            data = GetData(true);
+            query = clientOption + "|" + data;
             send(socket, query.c_str(), sizeof(query), 0);
             recv(socket, buffer, sizeof(query), 0);
             if (buffer[0] == '1')
@@ -94,7 +85,6 @@ int main(int argc, char const *argv[])
             break;
         }
     } while (isStillWorking);
-    //
     return 0;
 }
 
