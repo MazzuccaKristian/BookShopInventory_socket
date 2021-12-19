@@ -6,8 +6,9 @@
 #include <string>
 #include <unistd.h>
 
-#define PORT 8080
+#define PORT 8989
 #define SERVER_IP "127.0.0.1"
+#define BUFFER_SIZE 2048
 
 using std::perror;
 using std::cout;
@@ -20,3 +21,5 @@ void ShowMainMenu();
 int GetUserChoice();
 
 string inline GetData(bool dumpFlag);
+
+int ServerConnection();
