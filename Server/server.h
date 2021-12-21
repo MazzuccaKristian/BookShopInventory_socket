@@ -13,12 +13,12 @@ using std::ofstream;
 using std::ifstream;
 using std::string;
 
-#define PORT 8080
+#define PORT 8989
 #define CONNECTIONS 1
 #define BOOKS "books.txt"
 #define USERS "users.txt"
 #define TEMP "temp.txt"
-#define BUFFER_SIZE 32
+#define BUFFER_SIZE 2048
 
 void inline Setup();
 
